@@ -1,0 +1,85 @@
+apply plugin: 'com.android.application'
+apply plugin: 'walle'
+apply plugin: 'AndResGuard'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.mofic.myapplication"
+        minSdkVersion 19
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    signingConfigs {
+        sankuai {
+            storeFile file("keystore/meituan-debug.keystore")
+            storePassword "1234567"
+            keyAlias "meituan"
+            keyPassword "12345678"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+//            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.sankuai
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.sankuai
+            applicationIdSuffix 'debug'
+        }
+    }
+
+//    flavorDimensions "27"
+//    productFlavors {
+//        china {
+//        }
+//        international {
+//        }
+//    }
+}
+
+
+walle {
+    // 指定渠道包的输出路径
+    apkOutputFolder = new File("${project.buildDir}/outputs/channels");
+    // 定制渠道包的APK的文件名称
+    apkFileNameFormat = '${appName}-${packageName}-${channel}-${buildType}-v${versionName}-${versionCode}-${buildTime}.apk';
+    // 渠道配置文件
+    channelFile = new File("${project.getProjectDir()}/channel")
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    implementation 'com.meituan.android.walle:library:1.1.6'
+}
+
+andResGuard {
+    // mappingFile = file("./resource_mapping.txt")
+    mappingFile = null
+    use7zip = true
+    useSign = true
+    // 打开这个开关，会keep住所有资源的原始路径，只混淆资源的名字
+    keepRoot = false
+    compressFilePattern = [
+            "*.png",
+            "*.jpg",
+            "*.jpeg",
+            "*.gif",
+    ]
+    sevenzip {
+        artifact = 'com.tencent.mm:SevenZip:1.2.12'
+        //path = "/usr/local/bin/7za"
+    }
+}
